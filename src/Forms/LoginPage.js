@@ -68,7 +68,7 @@ const LoginPage = () => {
   return (
     <div className="login-background">
       <div className="login-card">
-        <h2>Health Status Manangement</h2>
+        <h2>Health Status Management</h2>
         <input
           type="text"
           name="id"

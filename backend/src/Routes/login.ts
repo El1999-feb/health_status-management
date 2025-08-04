@@ -26,13 +26,13 @@ router.post("/", async (req: Request, res: Response) => {
     }
 
     // ✅ Normal user check from DB
-    const [rows] = await db.query<RowDataPacket[]>(
-      "SELECT * FROM accounts WHERE id = ? AND password = ? AND position = ?",
-      [id, password, position]
-    );
+   const [rows] = await db.execute<RowDataPacket[]>(
+  "SELECT * FROM accounts WHERE id = ? AND BINARY password = ? AND LOWER(position) = LOWER(?)",
+  [id, password, position]
+);
 
     if (rows.length === 0) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ error: "Invalid credentials or wrong password" });
     }
 
     const user = rows[0];

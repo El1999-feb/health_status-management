@@ -15,30 +15,28 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const db_1 = __importDefault(require("../db"));
 const router = express_1.default.Router();
-// ✅ Login route
+// ✅ POST /api/login
 router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id, password, position } = req.body;
     if (!id || !password || !position) {
         return res.status(400).json({ error: "All fields are required" });
     }
     try {
-        // ✅ Hardcoded Super Admin (Check position too)
-        if (id === "202" &&
-            password === "superadmin" &&
-            position.toLowerCase() === "admin") {
+        // ✅ Hardcoded Super Admin check (ignore position)
+        if (id === "202" && password === "superadmin") {
             return res.json({
                 user: {
                     id: "202",
                     name: "Super Admin",
-                    position: "Admin",
+                    position: "Admin", // Hardcoded as Admin
                     status: "ACTIVE"
                 }
             });
         }
-        // ✅ Check from database (case-insensitive position)
-        const [rows] = yield db_1.default.query("SELECT * FROM accounts WHERE id = ? AND password = ? AND LOWER(position) = LOWER(?)", [id, password, position]);
+        // ✅ Normal user check from DB
+        const [rows] = yield db_1.default.execute("SELECT * FROM accounts WHERE id = ? AND BINARY password = ? AND LOWER(position) = LOWER(?)", [id, password, position]);
         if (rows.length === 0) {
-            return res.status(401).json({ error: "Invalid credentials" });
+            return res.status(401).json({ error: "Invalid credentials or wrong password" });
         }
         const user = rows[0];
         // ✅ Check if account is disabled
